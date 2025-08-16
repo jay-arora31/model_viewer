@@ -1,0 +1,77 @@
+.format-toggle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.toggle-buttons {
+  display: flex;
+  background: #0f0f0f;
+  border-radius: 8px;
+  padding: 0.25rem;
+  border: 1px solid #2d2d2d;
+}
+
+.toggle-button {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #94a3b8;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-width: 60px;
+}
+
+.toggle-button:hover {
+  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.toggle-button.active {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-button.active:hover {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .format-toggle {
+    gap: 0.75rem;
+  }
+  
+  .toggle-label {
+    font-size: 0.8rem;
+  }
+  
+  .toggle-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .format-toggle {
+    gap: 0.5rem;
+  }
+  
+  .toggle-label {
+    display: none;
+  }
+} 
