@@ -4,7 +4,7 @@ A professional 3D model visualization web application built with React and Three
 
 ## 🚀 Live Demo
 
-**Hosted on AWS S3 + CloudFront**: [Your Live URL Here]
+**Hosted on AWS S3 + CloudFront**: https://d17xw5jleoqzr3.cloudfront.net/
 
 ## ✨ Features
 
@@ -23,9 +23,13 @@ A professional 3D model visualization web application built with React and Three
 - **Package Manager**: Bun
 - **Hosting**: AWS S3 + CloudFront
 
-## 🏃‍♂️ Quick Start
+## 🏃‍♂️ Installation & Setup
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd model-viewer
+
 # Install dependencies
 bun install
 
