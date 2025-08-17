@@ -27,7 +27,7 @@ A professional 3D model visualization web application built with React and Three
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/jay-arora31/model_viewer.git
 cd model-viewer
 
 # Install dependencies
