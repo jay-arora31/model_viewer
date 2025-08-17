@@ -48,38 +48,38 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ format, checkpoint, onLoading
     
     try {
       const loader = new OptimizedPLYLoader();
-      const modelPaths = ['/models/patchwork_chair.ply'];
       
-      let result = null;
-      for (const modelPath of modelPaths) {
-        try {
-          result = await loader.load(
-            modelPath,
-            (progress) => setLoadingProgress(progress)
-          );
-          console.log('PLY model loaded successfully');
-          break;
-        } catch (err) {
-          console.warn(`Failed to load ${modelPath}:`, err);
-        }
-      }
+      // Add loading timeout
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Loading timeout')), 10000);
+      });
       
-      // Use fallback if all paths fail
-      if (!result) {
-        console.warn('All PLY model paths failed, using fallback model');
-        result = createFallbackModel();
-        setError('PLY model not found, showing fallback geometry');
-      }
-
-      setGeometry(result.geometry);
-      setMaterial(result.material);
+      const loadPromise = loader.load(
+        '/models/patchwork_chair.ply',
+        (progress) => setLoadingProgress(progress)
+      );
       
-    } catch (error) {
-      console.error('Failed to load PLY model:', error);
-      const fallback = createFallbackModel();
-      setGeometry(fallback.geometry);
-      setMaterial(fallback.material);
-      setError('Failed to load PLY model');
+      const { geometry: loadedGeometry, material: loadedMaterial } = await Promise.race([
+        loadPromise,
+        timeoutPromise
+      ]);
+      
+      // Clean up previous resources
+      cleanupResources();
+      
+      setGeometry(loadedGeometry);
+      setMaterial(loadedMaterial);
+      console.log('PLY model loaded successfully');
+      
+    } catch (loadError) {
+      console.warn('Failed to load PLY model, using fallback:', loadError);
+      setError(`PLY loading failed: ${loadError}`);
+      
+      // Use fallback model
+      const { geometry: fallbackGeometry, material: fallbackMaterial } = createFallbackModel();
+      cleanupResources();
+      setGeometry(fallbackGeometry);
+      setMaterial(fallbackMaterial);
     } finally {
       onLoadingChange(false);
       setLoadingProgress(null);
@@ -95,38 +95,51 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ format, checkpoint, onLoading
     
     try {
       const loader = new SplatLoader();
-      const result = await loader.load(
+      
+      // Add loading timeout
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Loading timeout')), 10000);
+      });
+      
+      const loadPromise = loader.load(
         '/models/dino_30k_cropped.splat',
         (progress) => setLoadingProgress(progress)
       );
-
-      setGeometry(result.geometry);
-      setMaterial(result.material);
+      
+      const { geometry: loadedGeometry, material: loadedMaterial } = await Promise.race([
+        loadPromise,
+        timeoutPromise
+      ]);
+      
+      // Clean up previous resources
+      cleanupResources();
+      
+      setGeometry(loadedGeometry);
+      setMaterial(loadedMaterial);
       console.log('SPLAT model loaded successfully');
       
-    } catch (error) {
-      console.error('Failed to load SPLAT model:', error);
-      const fallback = createFallbackModel();
-      setGeometry(fallback.geometry);
-      setMaterial(fallback.material);
-      setError('Failed to load SPLAT model');
+    } catch (loadError) {
+      console.warn('Failed to load SPLAT model, using fallback:', loadError);
+      setError(`SPLAT loading failed: ${loadError}`);
+      
+      // Use fallback model
+      const { geometry: fallbackGeometry, material: fallbackMaterial } = createFallbackModel();
+      cleanupResources();
+      setGeometry(fallbackGeometry);
+      setMaterial(fallbackMaterial);
     } finally {
       onLoadingChange(false);
       setLoadingProgress(null);
     }
   };
 
-  // Initialize with fallback model immediately
-  useEffect(() => {
-    const fallback = createFallbackModel();
-    setGeometry(fallback.geometry);
-    setMaterial(fallback.material);
-    setError(null);
-    onLoadingChange(false); // Ensure loading is off initially
-  }, []);
-
   // Load model based on format
   useEffect(() => {
+    // Display immediate fallback to prevent blank screen
+    const { geometry: immediateGeometry, material: immediateMaterial } = createFallbackModel();
+    setGeometry(immediateGeometry);
+    setMaterial(immediateMaterial);
+
     if (format === 'ply') {
       loadPLYModel();
     } else if (format === 'splat') {
@@ -134,16 +147,14 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ format, checkpoint, onLoading
     }
   }, [format]);
 
-  // Animate camera to checkpoint position
+  // Animate camera when checkpoint changes
   useEffect(() => {
-    if (!camera) return;
-
     const startPosition = camera.position.clone();
     const targetPosition = new THREE.Vector3(...checkpoint.position);
     const targetLookAt = new THREE.Vector3(...checkpoint.target);
+    const duration = 1000; // 1 second
     const startTime = Date.now();
-    const duration = 1000;
-
+    
     const animateCamera = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
@@ -167,6 +178,53 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ format, checkpoint, onLoading
   useEffect(() => {
     return cleanupResources;
   }, [cleanupResources]);
+
+  // Apply proper rotation to fix model orientation
+  useEffect(() => {
+    if (groupRef.current) {
+      // Reset rotation first
+      groupRef.current.rotation.set(0, 0, 0);
+      
+      // Apply standard orientation corrections
+      // Most 3D models need rotation to align properly with standard views
+      if (format === 'ply') {
+        // Common PLY model orientation fixes:
+        
+        // Option A: Standard PLY fix (-90° X-axis)
+        // groupRef.current.rotation.x = -Math.PI / 2; // -90 degrees
+        // groupRef.current.rotation.y = 0;
+        // groupRef.current.rotation.z = 0;
+        
+        // If still wrong, try these alternatives by uncommenting:
+        
+        // Option B: Positive X rotation (+90° X-axis) - TRYING THIS NOW
+        groupRef.current.rotation.x = Math.PI / 2; // +90 degrees
+        groupRef.current.rotation.y = 0;
+        groupRef.current.rotation.z = 0;
+        
+        // Option C: Y-axis rotation (180° turn around)
+        // groupRef.current.rotation.x = 0;
+        // groupRef.current.rotation.y = Math.PI;
+        // groupRef.current.rotation.z = 0;
+        
+        // Option D: Z-axis rotation (180° flip)
+        // groupRef.current.rotation.x = 0;
+        // groupRef.current.rotation.y = 0;
+        // groupRef.current.rotation.z = Math.PI;
+        
+        // Option E: No rotation (original)
+        // groupRef.current.rotation.x = 0;
+        // groupRef.current.rotation.y = 0;
+        // groupRef.current.rotation.z = 0;
+        
+      } else if (format === 'splat') {
+        // SPLAT models might need different rotation
+        groupRef.current.rotation.x = 0;
+        groupRef.current.rotation.y = 0;
+        groupRef.current.rotation.z = 0;
+      }
+    }
+  }, [format, geometry]);
 
   return (
     <group ref={groupRef}>

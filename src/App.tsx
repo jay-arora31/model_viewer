@@ -19,14 +19,15 @@ const CHECKPOINTS: Checkpoint[] = [
   {
     id: 1,
     name: "Front View",
-    position: [0, 0, 5],
+    position: [5, 0, 0],
     target: [0, 0, 0]
   },
   {
     id: 2,
     name: "Side View",
-    position: [5, 0, 0],
+    position: [0, 0, 5],
     target: [0, 0, 0]
+   
   },
   {
     id: 3,
