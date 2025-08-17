@@ -186,42 +186,17 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ format, checkpoint, onLoading
       groupRef.current.rotation.set(0, 0, 0);
       
       // Apply standard orientation corrections
-      // Most 3D models need rotation to align properly with standard views
       if (format === 'ply') {
-        // Common PLY model orientation fixes:
-        
-        // Option A: Standard PLY fix (-90° X-axis)
-        // groupRef.current.rotation.x = -Math.PI / 2; // -90 degrees
-        // groupRef.current.rotation.y = 0;
-        // groupRef.current.rotation.z = 0;
-        
-        // If still wrong, try these alternatives by uncommenting:
-        
-        // Option B: Positive X rotation (+90° X-axis) - TRYING THIS NOW
+        // PLY model orientation fix
         groupRef.current.rotation.x = Math.PI / 2; // +90 degrees
         groupRef.current.rotation.y = 0;
         groupRef.current.rotation.z = 0;
         
-        // Option C: Y-axis rotation (180° turn around)
-        // groupRef.current.rotation.x = 0;
-        // groupRef.current.rotation.y = Math.PI;
-        // groupRef.current.rotation.z = 0;
-        
-        // Option D: Z-axis rotation (180° flip)
-        // groupRef.current.rotation.x = 0;
-        // groupRef.current.rotation.y = 0;
-        // groupRef.current.rotation.z = Math.PI;
-        
-        // Option E: No rotation (original)
-        // groupRef.current.rotation.x = 0;
-        // groupRef.current.rotation.y = 0;
-        // groupRef.current.rotation.z = 0;
-        
       } else if (format === 'splat') {
-        // SPLAT models might need different rotation
-        groupRef.current.rotation.x = 0;
+        // SPLAT model - final combination attempt
+        groupRef.current.rotation.x = Math.PI / 2; // +90 degrees (same as PLY)
         groupRef.current.rotation.y = 0;
-        groupRef.current.rotation.z = 0;
+        groupRef.current.rotation.z = Math.PI; // 180 degrees Z-axis flip
       }
     }
   }, [format, geometry]);
