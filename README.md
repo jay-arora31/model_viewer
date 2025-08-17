@@ -1,6 +1,6 @@
 # Model Viewer
 
-A professional 3D model visualization web application built with React and Three.js.
+3D model visualization web application built with React and Three.js.
 
 ## 🚀 Live Demo
 
