@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import ModelViewer from './components/ModelViewer';
@@ -84,11 +84,15 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>3D Model Viewer</h1>
-        <FormatToggle 
-          currentFormat={modelFormat}
-          onFormatChange={handleFormatChange}
-        />
+        <div className="header-content">
+          <div className="title-section">
+            <h1>Model Viewer</h1>
+          </div>
+          <FormatToggle 
+            currentFormat={modelFormat}
+            onFormatChange={handleFormatChange}
+          />
+        </div>
       </header>
       
       <div className="viewer-container">
@@ -130,7 +134,7 @@ function App() {
         {isLoading && (
           <div className="loading-overlay">
             <div className="loading-spinner"></div>
-            <p>Loading 3D model...</p>
+            <p>Loading model...</p>
           </div>
         )}
       </div>
